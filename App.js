@@ -1,12 +1,65 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, FlatList } from 'react-native';
+import Header from './components/header';
+import AddToDo from './components/adToDo';
+import ToDoItem from './components/todoItem';
+import ToDoItemChecked from './components/todoItemChecked';
 
 export default function App() {
+  const [toDos, setToDos] = useState([
+    { text: 'Sample To Do', id: '1', isChecked: false }
+  ]
+  );
+
+  const pressHandler = (id) => {
+    setToDos((prevToDos) => {
+      var prevValue = prevToDos.filter(toDo => toDo.id == id)[0];
+      var afterUpdate = { text: prevValue.text, id: id, isChecked: !prevValue.isChecked };
+      var otherItems = prevToDos.filter(toDo => toDo.id != id);
+
+      if (otherItems.length == 0) {
+        return [afterUpdate];
+      } else {
+        if (afterUpdate.isChecked) {
+          return [...otherItems, afterUpdate];
+        } else {
+          return [afterUpdate, ...otherItems];
+        }
+      }
+
+    })
+  }
+
+  const submitHandler = (text) => {
+    setToDos((prevToDos) => {
+      return [
+        { text: text, id: Math.random().toString(), isChecked: false },
+        ...prevToDos];
+    })
+  }
+
+  function ItemRenderSelector({ item, pressHandler }) {
+    const itemIsChecked = item.isChecked;
+    if (itemIsChecked) {
+      return <ToDoItemChecked item={item} pressHandler={pressHandler} />;
+    }
+    return <ToDoItem item={item} pressHandler={pressHandler} />;
+  }
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+      <Header />
+      <View style={styles.content}>
+        <View style={styles.list}>
+          <AddToDo submitHandler={submitHandler} />
+          <FlatList
+            data={toDos}
+            renderItem={({ item }) => (
+              <ItemRenderSelector item={item} pressHandler={pressHandler} />
+            )}
+          />
+        </View>
+      </View>
     </View>
   );
 }
@@ -18,4 +71,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  content: {
+    padding: 40
+  },
+  list: {
+    marginTop: 20
+  }
 });

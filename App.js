@@ -23,14 +23,20 @@ export default function App() {
       const userData = await AsyncStorage.getItem(STORAGE_KEY)
 
       if (userAge !== null) {
-        setToDos(JSON.parse(userData))
+        try {
+          setToDos(JSON.parse(userData))
+        } catch (e) {
+          alert(e)
+        }
+      } else {
+        alert('No Data to Load')
       }
     } catch (e) {
-      alert('No Data to Load')
+      alert(e)
     }
   }
 
-  const saveData = async ({items}) => {
+  const saveData = async ({ items }) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(items))
 
@@ -70,7 +76,7 @@ export default function App() {
         { text: text, id: Math.random().toString(), isChecked: false },
         ...prevToDos];
 
-        saveData(newData)
+      saveData(newData)
 
       return newData;
     })

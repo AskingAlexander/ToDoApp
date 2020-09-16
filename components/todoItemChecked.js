@@ -1,16 +1,18 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
-export default function ToDoItemChecked({ item, pressHandler }){
+export default function ToDoItemChecked({ item, pressHandler, longPressHandler }) {
     return (
-        <TouchableOpacity onPress={() => pressHandler(item.id)}>
+        <TouchableOpacity
+            onPress={() => pressHandler(item.id)}
+            onLongPress={() => longPressHandler(item.id)}>
             <Text style={styles.item}>{item.text}</Text>
         </TouchableOpacity>
     )
 }
 
 const styles = StyleSheet.create({
-    item:{
+    item: {
         padding: 20,
         marginTop: 20,
         borderColor: 'white',
@@ -21,7 +23,7 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         borderStyle: 'dashed',
         borderRadius: 10,
-        textDecorationLine: 'line-through', 
+        textDecorationLine: 'line-through',
         textDecorationStyle: 'solid'
     }
 });

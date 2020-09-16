@@ -18,25 +18,25 @@ export default function App() {
     readData()
   }, [])
 
-  const readData = async () => {
-    try {
-      const userData = await AsyncStorage.getItem(STORAGE_KEY)
-
-      if (userAge !== null) {
-        try {
-          setToDos(JSON.parse(userData))
-        } catch (e) {
-          alert(e)
+  const readData = () => {
+    AsyncStorage.getItem(STORAGE_KEY).then((userData) => {
+      try {
+        if (userData === 'undefined') {
+          alert('No Data to Load')
+        } else {
+          try {
+            setToDos(JSON.parse(userData))
+          } catch (e) {
+            alert(e)
+          }
         }
-      } else {
-        alert('No Data to Load')
+      } catch (e) {
+        alert(e)
       }
-    } catch (e) {
-      alert(e)
-    }
+    })
   }
 
-  const saveData = async ({ items }) => {
+  const saveData = async (items) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(items))
 
@@ -53,7 +53,6 @@ export default function App() {
       var otherItems = prevToDos.filter(toDo => toDo.id != id);
 
       var newData = null;
-
       if (otherItems.length == 0) {
         newData = [afterUpdate];
       } else {
@@ -70,6 +69,15 @@ export default function App() {
     })
   }
 
+  const longPressHandler = (id) => {
+    setToDos((prevToDos) => {
+      var otherItems = prevToDos.filter(toDo => toDo.id != id);
+      saveData(otherItems)
+
+      return otherItems;
+    })
+  }
+
   const submitHandler = (text) => {
     setToDos((prevToDos) => {
       const newData = [
@@ -82,12 +90,16 @@ export default function App() {
     })
   }
 
-  function ItemRenderSelector({ item, pressHandler }) {
+  function ItemRenderSelector({ item, pressHandler, longPressHandler }) {
     const itemIsChecked = item.isChecked;
     if (itemIsChecked) {
-      return <ToDoItemChecked item={item} pressHandler={pressHandler} />;
+      return <ToDoItemChecked item={item}
+        pressHandler={pressHandler}
+        longPressHandler={longPressHandler} />;
     }
-    return <ToDoItem item={item} pressHandler={pressHandler} />;
+    return <ToDoItem item={item}
+      pressHandler={pressHandler}
+      longPressHandler={longPressHandler} />;
   }
 
   return (
@@ -99,7 +111,7 @@ export default function App() {
           <FlatList
             data={toDos}
             renderItem={({ item }) => (
-              <ItemRenderSelector item={item} pressHandler={pressHandler} />
+              <ItemRenderSelector item={item} pressHandler={pressHandler} longPressHandler={longPressHandler} />
             )}
           />
         </View>

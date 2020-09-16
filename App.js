@@ -36,11 +36,9 @@ export default function App() {
     })
   }
 
-  const saveData = async (items) => {
+  const saveData = (items) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(items))
-
-      alert('Data successfully saved')
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(items)).then(alert('Data successfully saved'))
     } catch (e) {
       alert('Failed to save the data to the storage')
     }

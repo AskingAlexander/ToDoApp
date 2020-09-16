@@ -12,7 +12,8 @@ export default function App() {
   let prevData = null;
 
   try {
-    const preValue = AsyncStorage.getItem('toDos');
+    let preValue = await AsyncStorage.getItem('toDos');
+
     if (preValue !== null) {
       // We have data!!
       prevData = JSON.parse(preValue);
@@ -21,11 +22,11 @@ export default function App() {
     }
   } catch (error) {
     console.log('New Data');
-    
+
     // Error retrieving data
     prevData = [{ text: 'Sample To Do', id: '1', isChecked: false }];
 
-    AsyncStorage.setItem(
+    await AsyncStorage.setItem(
       'toDos',
       JSON.stringify(prevData)
     );
@@ -51,7 +52,7 @@ export default function App() {
         }
       }
 
-      AsyncStorage.setItem(
+      await AsyncStorage.setItem(
         'toDos',
         JSON.stringify(newData)
       );
@@ -61,12 +62,12 @@ export default function App() {
   }
 
   const submitHandler = (text) => {
-    setToDos((prevToDos) => {
+    setToDos(async (prevToDos) => {
       const newData = [
         { text: text, id: Math.random().toString(), isChecked: false },
         ...prevToDos];
 
-      AsyncStorage.setItem(
+      await AsyncStorage.setItem(
         'toDos',
         JSON.stringify(newData)
       );

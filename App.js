@@ -18,16 +18,6 @@ export default function App() {
     readData()
   }, [])
 
-  const saveData = async () => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(prevData))
-
-      alert('Data successfully saved')
-    } catch (e) {
-      alert('Failed to save the data to the storage')
-    }
-  }
-
   const readData = async () => {
     try {
       const userData = await AsyncStorage.getItem(STORAGE_KEY)
@@ -40,8 +30,18 @@ export default function App() {
     }
   }
 
+  const saveData = async ({items}) => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+
+      alert('Data successfully saved')
+    } catch (e) {
+      alert('Failed to save the data to the storage')
+    }
+  }
+
   const pressHandler = (id) => {
-    setToDos(async (prevToDos) => {
+    setToDos((prevToDos) => {
       var prevValue = prevToDos.filter(toDo => toDo.id == id)[0];
       var afterUpdate = { text: prevValue.text, id: id, isChecked: !prevValue.isChecked };
       var otherItems = prevToDos.filter(toDo => toDo.id != id);
@@ -58,15 +58,19 @@ export default function App() {
         }
       }
 
+      saveData(newData)
+
       return newData;
     })
   }
 
   const submitHandler = (text) => {
-    setToDos(async (prevToDos) => {
+    setToDos((prevToDos) => {
       const newData = [
         { text: text, id: Math.random().toString(), isChecked: false },
         ...prevToDos];
+
+        saveData(newData)
 
       return newData;
     })

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 
 import { AsyncStorage } from 'react-native';
@@ -8,33 +8,37 @@ import AddToDo from './components/adToDo';
 import ToDoItem from './components/todoItem';
 import ToDoItemChecked from './components/todoItemChecked';
 
+const STORAGE_KEY = '@save_items';
+
 export default function App() {
-  let prevData = null;
 
-  _getFetchData = async () => {
+  const [toDos, setToDos] = useState([{ text: 'Sample To Do', id: '1', isChecked: false }]);
+
+  useEffect(() => {
+    readData()
+  }, [])
+
+  const saveData = async () => {
     try {
-      let preValue = await AsyncStorage.getItem('toDos');
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(prevData))
 
-      if (preValue !== null) {
-        // We have data!!
-        prevData = JSON.parse(preValue);
-
-        console.log('Previous Data');
-      }
-    } catch (error) {
-      console.log('New Data');
-
-      // Error retrieving data
-      prevData = [{ text: 'Sample To Do', id: '1', isChecked: false }];
-
-      await AsyncStorage.setItem(
-        'toDos',
-        JSON.stringify(prevData)
-      );
+      alert('Data successfully saved')
+    } catch (e) {
+      alert('Failed to save the data to the storage')
     }
   }
 
-  const [toDos, setToDos] = useState(prevData);
+  const readData = async () => {
+    try {
+      const userData = await AsyncStorage.getItem(STORAGE_KEY)
+
+      if (userAge !== null) {
+        setToDos(JSON.parse(userData))
+      }
+    } catch (e) {
+      alert('No Data to Load')
+    }
+  }
 
   const pressHandler = (id) => {
     setToDos(async (prevToDos) => {
@@ -54,11 +58,6 @@ export default function App() {
         }
       }
 
-      await AsyncStorage.setItem(
-        'toDos',
-        JSON.stringify(newData)
-      );
-
       return newData;
     })
   }
@@ -68,11 +67,6 @@ export default function App() {
       const newData = [
         { text: text, id: Math.random().toString(), isChecked: false },
         ...prevToDos];
-
-      await AsyncStorage.setItem(
-        'toDos',
-        JSON.stringify(newData)
-      );
 
       return newData;
     })

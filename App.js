@@ -11,31 +11,33 @@ import ToDoItemChecked from './components/todoItemChecked';
 export default function App() {
   let prevData = null;
 
-  try {
-    let preValue = await AsyncStorage.getItem('toDos');
+  _getFetchData = async () => {
+    try {
+      let preValue = await AsyncStorage.getItem('toDos');
 
-    if (preValue !== null) {
-      // We have data!!
-      prevData = JSON.parse(preValue);
+      if (preValue !== null) {
+        // We have data!!
+        prevData = JSON.parse(preValue);
 
-      console.log('Previous Data');
+        console.log('Previous Data');
+      }
+    } catch (error) {
+      console.log('New Data');
+
+      // Error retrieving data
+      prevData = [{ text: 'Sample To Do', id: '1', isChecked: false }];
+
+      await AsyncStorage.setItem(
+        'toDos',
+        JSON.stringify(prevData)
+      );
     }
-  } catch (error) {
-    console.log('New Data');
-
-    // Error retrieving data
-    prevData = [{ text: 'Sample To Do', id: '1', isChecked: false }];
-
-    await AsyncStorage.setItem(
-      'toDos',
-      JSON.stringify(prevData)
-    );
   }
 
   const [toDos, setToDos] = useState(prevData);
 
   const pressHandler = (id) => {
-    setToDos((prevToDos) => {
+    setToDos(async (prevToDos) => {
       var prevValue = prevToDos.filter(toDo => toDo.id == id)[0];
       var afterUpdate = { text: prevValue.text, id: id, isChecked: !prevValue.isChecked };
       var otherItems = prevToDos.filter(toDo => toDo.id != id);

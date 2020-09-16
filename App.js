@@ -1,15 +1,37 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
+
+import { AsyncStorage } from 'react-native';
+
 import Header from './components/header';
 import AddToDo from './components/adToDo';
 import ToDoItem from './components/todoItem';
 import ToDoItemChecked from './components/todoItemChecked';
 
 export default function App() {
-  const [toDos, setToDos] = useState([
-    { text: 'Sample To Do', id: '1', isChecked: false }
-  ]
-  );
+  let prevData = null;
+
+  try {
+    const preValue = AsyncStorage.getItem('toDos');
+    if (preValue !== null) {
+      // We have data!!
+      prevData = JSON.parse(preValue);
+
+      console.log('Previous Data');
+    }
+  } catch (error) {
+    console.log('New Data');
+    
+    // Error retrieving data
+    prevData = [{ text: 'Sample To Do', id: '1', isChecked: false }];
+
+    AsyncStorage.setItem(
+      'toDos',
+      JSON.stringify(prevData)
+    );
+  }
+
+  const [toDos, setToDos] = useState(prevData);
 
   const pressHandler = (id) => {
     setToDos((prevToDos) => {
@@ -17,24 +39,39 @@ export default function App() {
       var afterUpdate = { text: prevValue.text, id: id, isChecked: !prevValue.isChecked };
       var otherItems = prevToDos.filter(toDo => toDo.id != id);
 
+      var newData = null;
+
       if (otherItems.length == 0) {
-        return [afterUpdate];
+        newData = [afterUpdate];
       } else {
         if (afterUpdate.isChecked) {
-          return [...otherItems, afterUpdate];
+          newData = [...otherItems, afterUpdate];
         } else {
-          return [afterUpdate, ...otherItems];
+          newData = [afterUpdate, ...otherItems];
         }
       }
 
+      AsyncStorage.setItem(
+        'toDos',
+        JSON.stringify(newData)
+      );
+
+      return newData;
     })
   }
 
   const submitHandler = (text) => {
     setToDos((prevToDos) => {
-      return [
+      const newData = [
         { text: text, id: Math.random().toString(), isChecked: false },
         ...prevToDos];
+
+      AsyncStorage.setItem(
+        'toDos',
+        JSON.stringify(newData)
+      );
+
+      return newData;
     })
   }
 
